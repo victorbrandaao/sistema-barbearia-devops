@@ -1,0 +1,26 @@
+.DS_Store
+.vscode/
+
+# Ficheiros gerados pelo .NET e builds
+[Bb]in/
+[Oo]bj/
+
+# Ficheiros de configuração do utilizador
+*.user
+*.suo
+
+# Ficheiros de log e temporários
+*.log
+*.tmp
+
+# Ficheiros de manifesto de ferramentas locais
+.config/dotnet-tools.json
+
+# --- REGRAS DO TERRAFORM ADICIONADAS ---
+# Ignora a pasta de plugins do Terraform
+.terraform/
+
+# Ignora os ficheiros de estado do Terraform (contêm segredos!)
+*.tfstate
+*.tfstate.backup
+```

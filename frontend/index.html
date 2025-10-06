@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Barbearia Imperial - Agendamentos</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#111827"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/111827/d4af37?text=B.I">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #0c0a09; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        .background-overlay { background: radial-gradient(circle, rgba(12,10,9,0.7) 0%, rgba(12,10,9,0.95) 70%, #0c0a09 100%); }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1c1917; }
+        ::-webkit-scrollbar-thumb { background: #b45309; border-radius: 10px; }
+        [type='date']::-webkit-calendar-picker-indicator { filter: invert(0.8) brightness(1.2); cursor: pointer; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
+            border-radius: 8px; padding: 16px; position: fixed; z-index: 100; left: 50%;
+            transform: translateX(-50%); bottom: 30px; opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
+        }
+        .toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+    </style>
+</head>
+<body class="text-stone-300">
+    <div class="fixed inset-0 z-[-1]">
+        <img src="https://images.unsplash.com/photo-1621605815832-8b3c5825b437?q=80&w=1974&auto=format&fit=crop" 
+             alt="[Ferramentas de barbearia em uma bancada de madeira]" 
+             class="w-full h-full object-cover opacity-25">
+        <div class="absolute inset-0 background-overlay"></div>
+    </div>
+
+    <div class="container mx-auto p-4 md:p-6 max-w-4xl">
+        <header class="text-center mb-8 md:mb-12 relative">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold" style="color: #c09a67;">Barbearia Imperial</h1>
+            <p class="text-stone-400 mt-2 tracking-wider">AGENDAMENTOS</p>
+            <button id="install-btn" class="absolute top-0 right-0 p-2 text-stone-400 hover:text-amber-700 transition-colors" title="Instalar App">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            </button>
+        </header>
+
+        <main class="bg-stone-900/50 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-stone-800 shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6 border-b-2 border-amber-900/30 pb-3 text-stone-200">Faça seu Agendamento</h2>
+            <form id="appointment-form" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label for="barber-name" class="block text-sm font-medium text-stone-400">Barbeiro</label>
+                        <select id="barber-name" name="barber-name" required class="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2.5 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800">
+                            <option value="">Carregando barbeiros...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="client-name" class="block text-sm font-medium text-stone-400">Seu Nome</label>
+                        <input type="text" id="client-name" name="client-name" required placeholder="Nome completo" class="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2.5 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800 placeholder:text-stone-500">
+                    </div>
+                </div>
+                <div>
+                    <label for="appointment-date" class="block text-sm font-medium text-stone-400">Data</label>
+                    <input type="date" id="appointment-date" name="appointment-date" required class="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2.5 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800" style="color-scheme: dark;">
+                </div>
+                <div id="time-slots-container" class="hidden">
+                    <label class="block text-sm font-medium text-stone-400">Horários Disponíveis</label>
+                    <div id="time-slots-loader" class="text-center p-4 text-stone-400">Buscando horários...</div>
+                    <div id="time-slots" class="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2"></div>
+                </div>
+                <input type="hidden" id="appointment-time" name="appointment-time">
+                <div class="pt-2">
+                    <button type="submit" id="submit-btn" disabled class="w-full bg-amber-800 disabled:bg-stone-700 disabled:cursor-not-allowed hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Confirmar Agendamento
+                    </button>
+                </div>
+            </form>
+        </main>
+        <footer class="text-center mt-6">
+            <a href="./admin.html" class="text-sm text-stone-500 hover:text-stone-400 transition-colors">Acesso Admin</a>
+        </footer>
+    </div>
+
+    <!-- Modal e Toast (inalterados) -->
+    <div id="install-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 w-full max-w-2xl rounded-lg border border-gray-700 shadow-2xl p-6 md:p-8 relative">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h3 class="text-2xl text-center font-bold text-amber-400 mb-6">Como Instalar o Aplicativo</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="text-xl font-semibold mb-3 text-center">iPhone (iOS)</h4>
+                    <ol class="space-y-4 text-sm text-gray-300">
+                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">1</span><span>No Safari, toque no ícone de <strong class="text-amber-400">Compartilhar</strong>.</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" /></svg></li>
+                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">2</span><span>Role e selecione <strong class="text-amber-400">"Adicionar à Tela de Início"</strong>.</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></li>
+                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">3</span><span>Toque em <strong class="text-amber-400">"Adicionar"</strong>.</li>
+                    </ol>
+                </div>
+                <div>
+                    <h4 class="text-xl font-semibold mb-3 text-center">Android (Chrome)</h4>
+                     <ol class="space-y-4 text-sm text-gray-300">
+                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">1</span><span>No Chrome, toque nos <strong class="text-amber-400">três pontinhos</strong>.</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg></li>
+                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">2</span><span>Selecione a opção <strong class="text-amber-400">"Instalar aplicativo"</strong>.</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></li>
+                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">3</span><span>Confirme tocando em <strong class="text-amber-400">"Instalar"</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE_URL = 'https://54.210.208.2'; // <-- ATUALIZADO PARA TESTE LOCAL
+            
+            const form = document.getElementById('appointment-form');
+            const dateInput = document.getElementById('appointment-date');
+            const timeSlotsContainer = document.getElementById('time-slots-container');
+            const timeSlotsDiv = document.getElementById('time-slots');
+            const timeSlotsLoader = document.getElementById('time-slots-loader');
+            const hiddenTimeInput = document.getElementById('appointment-time');
+            const submitBtn = document.getElementById('submit-btn');
+            const barberSelect = document.getElementById('barber-name');
+            const toast = document.getElementById('toast');
+
+            let selectedTimeSlot = null;
+            
+            // --- Lógica do PWA (Inalterada) ---
+            const manifest = {"name":"Barbearia Imperial","short_name":"Imperial","start_url":".","display":"standalone","background_color":"#111827","theme_color":"#d4af37","icons":[{"src":"https://placehold.co/192x192/111827/d4af37?text=B.I","type":"image/png","sizes":"192x192"},{"src":"https://placehold.co/512x512/111827/d4af37?text=B.I","type":"image/png","sizes":"512x512"}]};
+            const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestUrl}">`);
+            if ('serviceWorker' in navigator) {
+                const swContent = `const CACHE_NAME = 'barbearia-cache-v1'; self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['/','https://cdn.tailwindcss.com']))) }); self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))) });`;
+                const swBlob = new Blob([swContent], {type: 'application/javascript'});
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob));
+            }
+
+            // --- FUNÇÕES DA APLICAÇÃO ---
+
+            const showToast = (message, isError = false) => {
+                toast.textContent = message;
+                toast.className = `toast show ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+                setTimeout(() => { toast.className = 'toast'; }, 3000);
+            };
+
+            const fetchBarbers = async () => {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/barbeiros`);
+                    if (!response.ok) throw new Error('Erro ao buscar barbeiros.');
+                    const barbers = await response.json();
+                    
+                    barberSelect.innerHTML = '';
+                    if (barbers.length > 0) {
+                        barbers.forEach(barber => {
+                            const option = document.createElement('option');
+                            option.value = barber.nome;
+                            option.textContent = barber.nome;
+                            barberSelect.appendChild(option);
+                        });
+                    } else {
+                        barberSelect.innerHTML = '<option value="">Nenhum barbeiro disponível</option>';
+                    }
+                } catch (error) {
+                    console.error(error);
+                    barberSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                }
+            };
+            
+            const fetchAvailableTimes = async () => {
+                const selectedDate = dateInput.value;
+                if (!selectedDate) return;
+
+                timeSlotsContainer.style.display = 'block';
+                timeSlotsDiv.innerHTML = '';
+                timeSlotsLoader.style.display = 'block';
+                selectedTimeSlot = null;
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/horarios/disponiveis?data=${selectedDate}`);
+                    if (!response.ok) throw new Error('Erro ao buscar horários.');
+                    const times = await response.json();
+
+                    if (times.length === 0) {
+                        timeSlotsDiv.innerHTML = '<p class="col-span-full text-center text-stone-400">Nenhum horário disponível para esta data.</p>';
+                    } else {
+                        times.forEach(time => {
+                            const timeBtn = document.createElement('button');
+                            timeBtn.type = 'button';
+                            timeBtn.textContent = time;
+                            timeBtn.className = 'p-2 border border-stone-600 rounded-md text-stone-300 hover:bg-amber-800 hover:border-amber-700 transition-colors';
+                            timeBtn.addEventListener('click', () => {
+                                document.querySelectorAll('#time-slots button').forEach(btn => {
+                                    btn.classList.remove('bg-amber-700', 'border-amber-600');
+                                });
+                                timeBtn.classList.add('bg-amber-700', 'border-amber-600');
+                                selectedTimeSlot = time;
+                                hiddenTimeInput.value = `${selectedDate}T${time}:00`;
+                                submitBtn.disabled = false;
+                            });
+                            timeSlotsDiv.appendChild(timeBtn);
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    timeSlotsDiv.innerHTML = '<p class="col-span-full text-center text-red-400">Não foi possível buscar os horários.</p>';
+                } finally {
+                    timeSlotsLoader.style.display = 'none';
+                }
+            };
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Agendando...';
+
+                const newAppointment = {
+                    nomeBarbeiro: document.getElementById('barber-name').value,
+                    nomeCliente: document.getElementById('client-name').value,
+                    dataHora: new Date(hiddenTimeInput.value).toISOString()
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/agendamentos`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newAppointment),
+                    });
+
+                    if (!response.ok) throw new Error('Falha ao criar agendamento.');
+                    
+                    showToast('Agendamento confirmado com sucesso!');
+                    form.reset();
+                    timeSlotsContainer.style.display = 'none';
+                    selectedTimeSlot = null;
+                } catch (error) {
+                    console.error(error);
+                    showToast('Erro ao criar agendamento. Tente novamente.', true);
+                } finally {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Confirmar Agendamento';
+                }
+            });
+
+            dateInput.addEventListener('change', fetchAvailableTimes);
+
+            // --- INICIALIZAÇÃO ---
+            fetchBarbers();
+            
+             // Lógica do modal de instalação
+            const installBtn = document.getElementById('install-btn');
+            const installModal = document.getElementById('install-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            installBtn.addEventListener('click', () => installModal.classList.remove('hidden'));
+            closeModalBtn.addEventListener('click', () => installModal.classList.add('hidden'));
+            installModal.addEventListener('click', (e) => { if(e.target === installModal) installModal.classList.add('hidden'); });
+
+        });
+    </script>
+</body>
+</html>
