@@ -1,9 +1,6 @@
-# Versão do Docker Compose que estamos a usar. '3.8' é uma versão moderna e estável.
 version: "3.8"
 
-# A secção 'services' é onde definimos todos os nossos contentores.
 services:
-  # O nosso primeiro serviço: o contentor do banco de dados PostgreSQL.
   db:
     image: postgres:14
     container_name: barbearia-db
@@ -15,8 +12,6 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    # NOVO: Healthcheck para garantir que o banco está pronto.
-    # O Docker vai esperar este comando ter sucesso antes de considerar o serviço "saudável".
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d barbearia_db"]
       interval: 5s
@@ -24,7 +19,6 @@ services:
       retries: 5
     restart: always
 
-  # O nosso segundo serviço: o contentor da API.
   api:
     container_name: barbearia-api
     build: .
@@ -33,13 +27,10 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:80
       ConnectionStrings__DefaultConnection: "Host=db;Database=barbearia_db;Username=postgres;Password=mysecretpassword"
-    # ATUALIZADO: Agora depende da condição 'service_healthy' do 'db'.
-    # A API só vai iniciar depois que o healthcheck do banco passar.
     depends_on:
       db:
         condition: service_healthy
     restart: always
 
-# Define o volume nomeado que usamos para a persistência do banco de dados.
 volumes:
   postgres-data:

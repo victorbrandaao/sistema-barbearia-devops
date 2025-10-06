@@ -12,11 +12,12 @@
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
       body {
         font-family: "Roboto", sans-serif;
-        background-color: #1c1917;
+        background-color: #0c0a09;
       }
       h1,
       h2,
@@ -25,6 +26,7 @@
       }
       ::-webkit-scrollbar {
         width: 8px;
+        height: 8px;
       }
       ::-webkit-scrollbar-track {
         background: #1c1917;
@@ -33,6 +35,7 @@
         background: #b45309;
         border-radius: 10px;
       }
+
       .fade-in {
         animation: fadeIn 0.5s ease-in-out;
       }
@@ -46,6 +49,21 @@
           transform: translateY(0);
         }
       }
+
+      .slide-in {
+        animation: slideIn 0.3s ease-out;
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
       .toast {
         visibility: hidden;
         min-width: 250px;
@@ -67,23 +85,96 @@
         opacity: 1;
         bottom: 50px;
       }
+      .toast.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+      .toast.error {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+
+      .stat-card {
+        transition: all 0.3s ease;
+      }
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(192, 154, 103, 0.15);
+      }
+
+      .tab-btn {
+        transition: all 0.2s ease;
+      }
+      .tab-btn.active {
+        background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+      }
+
+      .appointment-card {
+        transition: all 0.2s ease;
+      }
+      .appointment-card:hover {
+        transform: translateX(4px);
+      }
+
+      .loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 4px solid #c09a67;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
-  <body class="text-stone-300">
-    <!-- TELA DE LOGIN -->
+  <body class="text-stone-300 bg-stone-950">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- LOGIN SCREEN -->
     <div
       id="login-container"
-      class="min-h-screen flex items-center justify-center bg-stone-900 p-4"
+      class="min-h-screen flex items-center justify-center p-4"
     >
-      <div class="w-full max-w-md">
-        <h1 class="text-4xl text-center font-bold mb-8" style="color: #c09a67">
-          Admin Imperial
-        </h1>
+      <div class="w-full max-w-md fade-in">
+        <div class="text-center mb-8">
+          <svg
+            class="w-16 h-16 mx-auto mb-4"
+            style="color: #c09a67"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+            ></path>
+          </svg>
+          <h1 class="text-4xl font-bold" style="color: #c09a67">
+            Admin Imperial
+          </h1>
+          <p class="text-stone-500 text-sm mt-2">Painel de Controle</p>
+        </div>
         <div
-          class="bg-stone-800 p-8 rounded-lg shadow-lg border border-stone-700"
+          class="bg-stone-900 p-8 rounded-xl shadow-2xl border border-stone-800"
         >
           <form id="login-form">
-            <div class="space-y-6">
+            <div class="space-y-5">
               <div>
                 <label for="username" class="text-sm font-medium text-stone-400"
                   >Usuário</label
@@ -92,7 +183,8 @@
                   type="text"
                   id="username"
                   required
-                  class="mt-1 w-full bg-stone-700 border border-stone-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800"
+                  placeholder="Digite seu usuário"
+                  class="mt-1 w-full bg-stone-800 border border-stone-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 placeholder:text-stone-600"
                 />
               </div>
               <div>
@@ -103,12 +195,13 @@
                   type="password"
                   id="password"
                   required
-                  class="mt-1 w-full bg-stone-700 border border-stone-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800"
+                  placeholder="Digite sua senha"
+                  class="mt-1 w-full bg-stone-800 border border-stone-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 placeholder:text-stone-600"
                 />
               </div>
               <button
                 type="submit"
-                class="w-full bg-amber-800 hover:bg-amber-700 text-white font-bold py-2.5 rounded-lg transition-all"
+                class="w-full bg-gradient-to-r from-amber-800 to-amber-600 hover:from-amber-700 hover:to-amber-500 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02]"
               >
                 Entrar
               </button>
@@ -118,146 +211,383 @@
         </div>
         <footer class="text-center mt-6">
           <a
-            href="./index.html"
+            href="./index-v2.html"
             class="text-sm text-stone-500 hover:text-stone-400 transition-colors"
-            >Voltar para Agendamento</a
+            >← Voltar para Agendamento</a
           >
         </footer>
       </div>
     </div>
 
-    <!-- PAINEL DE ADMIN (ESCONDIDO) -->
-    <div id="admin-panel" class="hidden container mx-auto p-4 md:p-6 max-w-7xl">
-      <header class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold" style="color: #c09a67">
-          Painel de Controle
-        </h1>
-        <button
-          id="logout-btn"
-          class="text-sm text-stone-400 hover:text-white underline"
-        >
-          Sair
-        </button>
-      </header>
+    <!-- ADMIN PANEL -->
+    <div id="admin-panel" class="hidden min-h-screen">
+      <!-- Top Navigation -->
+      <nav
+        class="bg-stone-900 border-b border-stone-800 sticky top-0 z-40 backdrop-blur-sm bg-stone-900/95"
+      >
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center">
+              <svg
+                class="w-8 h-8 mr-3"
+                style="color: #c09a67"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                ></path>
+              </svg>
+              <h1 class="text-2xl font-bold" style="color: #c09a67">
+                Barbearia Imperial
+              </h1>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-stone-400">Admin</span>
+              <button
+                id="logout-btn"
+                class="text-sm text-stone-400 hover:text-white transition-colors"
+              >
+                Sair →
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-      <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Gerenciamento de Barbeiros -->
-        <div
-          class="lg:col-span-1 bg-stone-800/50 p-6 rounded-xl border border-stone-700"
-        >
-          <h2 class="text-xl font-bold mb-4">Gerenciar Barbeiros</h2>
-          <form id="add-barber-form" class="flex gap-2 mb-4">
-            <input
-              type="text"
-              id="new-barber-name"
-              placeholder="Nome do novo barbeiro"
-              required
-              class="flex-grow bg-stone-700 border border-stone-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800"
-            />
-            <button
-              type="submit"
-              class="bg-amber-800 hover:bg-amber-700 text-white font-bold p-2 rounded-md"
+      <!-- Main Content -->
+      <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+          <button
+            class="tab-btn active px-6 py-3 rounded-lg font-medium whitespace-nowrap"
+            data-tab="dashboard"
+          >
+            📊 Dashboard
+          </button>
+          <button
+            class="tab-btn px-6 py-3 rounded-lg font-medium whitespace-nowrap bg-stone-800"
+            data-tab="appointments"
+          >
+            📅 Agendamentos
+          </button>
+          <button
+            class="tab-btn px-6 py-3 rounded-lg font-medium whitespace-nowrap bg-stone-800"
+            data-tab="barbers"
+          >
+            ✂️ Barbeiros
+          </button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-content">
+          <!-- Stats Cards -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+          >
+            <div
+              class="stat-card bg-gradient-to-br from-blue-900/20 to-blue-800/10 border border-blue-800/30 rounded-xl p-5"
             >
-              +
-            </button>
-          </form>
-          <div
-            id="barbers-list"
-            class="space-y-2 max-h-60 overflow-y-auto"
-          ></div>
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-stone-400 text-sm">Total de Agendamentos</p>
+                <span class="text-2xl">📋</span>
+              </div>
+              <p id="stat-total" class="text-3xl font-bold text-white">0</p>
+            </div>
+            <div
+              class="stat-card bg-gradient-to-br from-green-900/20 to-green-800/10 border border-green-800/30 rounded-xl p-5"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-stone-400 text-sm">Hoje</p>
+                <span class="text-2xl">📅</span>
+              </div>
+              <p id="stat-today" class="text-3xl font-bold text-white">0</p>
+            </div>
+            <div
+              class="stat-card bg-gradient-to-br from-purple-900/20 to-purple-800/10 border border-purple-800/30 rounded-xl p-5"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-stone-400 text-sm">Este Mês</p>
+                <span class="text-2xl">📊</span>
+              </div>
+              <p id="stat-month" class="text-3xl font-bold text-white">0</p>
+            </div>
+            <div
+              class="stat-card bg-gradient-to-br from-amber-900/20 to-amber-800/10 border border-amber-800/30 rounded-xl p-5"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-stone-400 text-sm">Concluídos</p>
+                <span class="text-2xl">✅</span>
+              </div>
+              <p id="stat-completed" class="text-3xl font-bold text-white">0</p>
+            </div>
+          </div>
+
+          <!-- Charts -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-stone-900 border border-stone-800 rounded-xl p-6">
+              <h3 class="text-lg font-bold text-white mb-4">
+                Agendamentos por Barbeiro
+              </h3>
+              <canvas id="barberChart"></canvas>
+            </div>
+            <div class="bg-stone-900 border border-stone-800 rounded-xl p-6">
+              <h3 class="text-lg font-bold text-white mb-4">
+                Status dos Agendamentos
+              </h3>
+              <canvas id="statusChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="bg-stone-900 border border-stone-800 rounded-xl p-6">
+            <h3 class="text-lg font-bold text-white mb-4">🚀 Ações Rápidas</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <button
+                onclick="switchTab('appointments')"
+                class="bg-stone-800 hover:bg-stone-700 border border-stone-700 rounded-lg p-4 transition-all text-left"
+              >
+                <div class="text-2xl mb-2">📅</div>
+                <p class="font-medium text-white">Ver Agendamentos</p>
+                <p class="text-sm text-stone-400">
+                  Gerenciar todos os agendamentos
+                </p>
+              </button>
+              <button
+                onclick="switchTab('barbers')"
+                class="bg-stone-800 hover:bg-stone-700 border border-stone-700 rounded-lg p-4 transition-all text-left"
+              >
+                <div class="text-2xl mb-2">✂️</div>
+                <p class="font-medium text-white">Gerenciar Barbeiros</p>
+                <p class="text-sm text-stone-400">
+                  Adicionar ou remover barbeiros
+                </p>
+              </button>
+              <button
+                onclick="exportData()"
+                class="bg-stone-800 hover:bg-stone-700 border border-stone-700 rounded-lg p-4 transition-all text-left"
+              >
+                <div class="text-2xl mb-2">📥</div>
+                <p class="font-medium text-white">Exportar Dados</p>
+                <p class="text-sm text-stone-400">Baixar relatório em CSV</p>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Gerenciamento de Agendamentos -->
-        <div
-          class="lg:col-span-2 bg-stone-800/50 p-6 rounded-xl border border-stone-700"
-        >
-          <h2 class="text-xl font-bold mb-4">Todos os Agendamentos</h2>
-          <div
-            id="admin-appointments-list"
-            class="space-y-3 max-h-[70vh] overflow-y-auto pr-2"
-          ></div>
+        <!-- Appointments Tab -->
+        <div id="tab-appointments" class="tab-content hidden">
+          <!-- Filters -->
+          <div class="bg-stone-900 border border-stone-800 rounded-xl p-6 mb-6">
+            <h3 class="text-lg font-bold text-white mb-4">🔍 Filtros</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <select
+                id="filter-status"
+                class="bg-stone-800 border border-stone-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800"
+              >
+                <option value="">Todos os Status</option>
+                <option value="Agendado">Agendado</option>
+                <option value="Concluído">Concluído</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+              <select
+                id="filter-barber"
+                class="bg-stone-800 border border-stone-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800"
+              >
+                <option value="">Todos os Barbeiros</option>
+              </select>
+              <input
+                type="date"
+                id="filter-date-start"
+                class="bg-stone-800 border border-stone-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800"
+                style="color-scheme: dark"
+              />
+              <button
+                id="apply-filters"
+                class="bg-amber-800 hover:bg-amber-700 text-white font-bold rounded-lg px-4 transition-all"
+              >
+                Aplicar Filtros
+              </button>
+            </div>
+          </div>
+
+          <!-- Appointments List -->
+          <div class="bg-stone-900 border border-stone-800 rounded-xl p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-white">Agendamentos</h3>
+              <button
+                id="refresh-appointments"
+                class="text-stone-400 hover:text-white transition-colors"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+            <div
+              id="appointments-list"
+              class="space-y-3 max-h-[600px] overflow-y-auto pr-2"
+            >
+              <!-- Populated dynamically -->
+            </div>
+          </div>
         </div>
-      </main>
+
+        <!-- Barbers Tab -->
+        <div id="tab-barbers" class="tab-content hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Add Barber Form -->
+            <div class="bg-stone-900 border border-stone-800 rounded-xl p-6">
+              <h3 class="text-lg font-bold text-white mb-4">
+                ➕ Adicionar Barbeiro
+              </h3>
+              <form id="add-barber-form" class="space-y-4">
+                <div>
+                  <label class="text-sm text-stone-400 mb-2 block"
+                    >Nome do Barbeiro</label
+                  >
+                  <input
+                    type="text"
+                    id="new-barber-name"
+                    required
+                    placeholder="Nome completo"
+                    class="w-full bg-stone-800 border border-stone-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 placeholder:text-stone-600"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  class="w-full bg-amber-800 hover:bg-amber-700 text-white font-bold py-2 rounded-lg transition-all"
+                >
+                  Adicionar
+                </button>
+              </form>
+            </div>
+
+            <!-- Barbers List -->
+            <div
+              class="lg:col-span-2 bg-stone-900 border border-stone-800 rounded-xl p-6"
+            >
+              <h3 class="text-lg font-bold text-white mb-4">
+                ✂️ Barbeiros Cadastrados
+              </h3>
+              <div
+                id="barbers-list"
+                class="space-y-3 max-h-[400px] overflow-y-auto pr-2"
+              >
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
+    <!-- Toast -->
     <div id="toast" class="toast"></div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const API_BASE_URL = "https://api.victorbrandao.tech"; // <-- ATUALIZADO PARA TESTE LOCAL
+      const API_BASE_URL = "https://api.victorbrandao.tech";
+      let barberChart, statusChart;
 
-        const loginContainer = document.getElementById("login-container");
-        const adminPanel = document.getElementById("admin-panel");
-        const loginForm = document.getElementById("login-form");
-        const loginError = document.getElementById("login-error");
-        const logoutBtn = document.getElementById("logout-btn");
-
-        const addBarberForm = document.getElementById("add-barber-form");
-        const newBarberNameInput = document.getElementById("new-barber-name");
-        const barbersList = document.getElementById("barbers-list");
-        const adminAppointmentsList = document.getElementById(
-          "admin-appointments-list"
-        );
+      // --- Helper Functions ---
+      const showToast = (message, isError = false) => {
         const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.className = `toast show ${isError ? "error" : "success"}`;
+        setTimeout(() => {
+          toast.className = "toast";
+        }, 3000);
+      };
 
-        const showToast = (message, isError = false) => {
-          toast.textContent = message;
-          toast.className = `toast show ${
-            isError ? "bg-red-600" : "bg-green-600"
-          }`;
-          setTimeout(() => {
-            toast.className = "toast";
-          }, 3000);
+      const showLoading = () =>
+        document.getElementById("loading-overlay").classList.remove("hidden");
+      const hideLoading = () =>
+        document.getElementById("loading-overlay").classList.add("hidden");
+
+      const getToken = () => localStorage.getItem("jwt_token");
+      const setToken = (token) => localStorage.setItem("jwt_token", token);
+      const removeToken = () => localStorage.removeItem("jwt_token");
+
+      const showAdminPanel = () => {
+        document.getElementById("login-container").classList.add("hidden");
+        document.getElementById("admin-panel").classList.remove("hidden");
+        document.getElementById("admin-panel").classList.add("fade-in");
+        loadDashboard();
+      };
+
+      const showLoginPage = () => {
+        removeToken();
+        document.getElementById("login-container").classList.remove("hidden");
+        document.getElementById("admin-panel").classList.add("hidden");
+      };
+
+      const formatDateTime = (dt) => {
+        const date = new Date(dt);
+        return date
+          .toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
+          .replace(",", " -");
+      };
+
+      const fetchWithAuth = (url, options = {}) => {
+        const token = getToken();
+        if (!token) {
+          showLoginPage();
+          return Promise.reject(new Error("Token não encontrado."));
+        }
+        const headers = {
+          ...options.headers,
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         };
+        return fetch(url, { ...options, headers });
+      };
 
-        const getToken = () => localStorage.getItem("jwt_token");
-        const setToken = (token) => localStorage.setItem("jwt_token", token);
-        const removeToken = () => localStorage.removeItem("jwt_token");
+      // --- Tab Management ---
+      window.switchTab = (tabName) => {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((tab) => tab.classList.add("hidden"));
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.classList.remove("active");
+          btn.classList.add("bg-stone-800");
+        });
 
-        const showAdminPanel = () => {
-          loginContainer.classList.add("hidden");
-          adminPanel.classList.remove("hidden");
-          adminPanel.classList.add("fade-in");
-          loadAdminData();
-        };
+        document.getElementById(`tab-${tabName}`).classList.remove("hidden");
+        document
+          .querySelector(`[data-tab="${tabName}"]`)
+          .classList.add("active");
+        document
+          .querySelector(`[data-tab="${tabName}"]`)
+          .classList.remove("bg-stone-800");
 
-        const showLoginPage = () => {
-          removeToken();
-          loginContainer.classList.remove("hidden");
-          adminPanel.classList.add("hidden");
-        };
+        if (tabName === "appointments") fetchAllAppointments();
+        if (tabName === "barbers") fetchBarbersForAdmin();
+      };
 
-        const formatDateTime = (dt) =>
-          new Date(dt)
-            .toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
-            .replace(",", " -");
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+      });
 
-        const loadAdminData = async () => {
-          await fetchBarbersForAdmin();
-          await fetchAllAppointments();
-        };
-
-        const fetchWithAuth = (url, options = {}) => {
-          const token = getToken();
-          if (!token) {
-            showLoginPage();
-            return Promise.reject(new Error("Token não encontrado."));
-          }
-          const headers = {
-            ...options.headers,
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          };
-          return fetch(url, { ...options, headers });
-        };
-
-        // --- LÓGICA DE LOGIN ---
-        loginForm.addEventListener("submit", async (e) => {
+      // --- Login ---
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async (e) => {
           e.preventDefault();
-          loginError.textContent = "";
+          document.getElementById("login-error").textContent = "";
           const username = document.getElementById("username").value;
           const password = document.getElementById("password").value;
 
+          showLoading();
           try {
             const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
               method: "POST",
@@ -269,37 +599,311 @@
             setToken(data.token);
             showAdminPanel();
           } catch (error) {
-            loginError.textContent = error.message;
+            document.getElementById("login-error").textContent = error.message;
+          } finally {
+            hideLoading();
           }
         });
 
-        logoutBtn.addEventListener("click", showLoginPage);
+      document
+        .getElementById("logout-btn")
+        .addEventListener("click", showLoginPage);
 
-        // --- GERENCIAMENTO DE BARBEIROS ---
-        const fetchBarbersForAdmin = async () => {
+      // --- Dashboard ---
+      const loadDashboard = async () => {
+        showLoading();
+        try {
+          const [statsRes, appointmentsRes, barbersRes] = await Promise.all([
+            fetchWithAuth(`${API_BASE_URL}/api/agendamentos/estatisticas`),
+            fetchWithAuth(`${API_BASE_URL}/api/agendamentos`),
+            fetchWithAuth(`${API_BASE_URL}/api/barbeiros`),
+          ]);
+
+          const stats = await statsRes.json();
+          const appointments = await appointmentsRes.json();
+          const barbers = await barbersRes.json();
+
+          // Update stats
+          document.getElementById("stat-total").textContent =
+            stats.totalAgendamentos || 0;
+          document.getElementById("stat-today").textContent =
+            stats.agendamentosHoje || 0;
+          document.getElementById("stat-month").textContent =
+            stats.agendamentosMes || 0;
+          document.getElementById("stat-completed").textContent =
+            stats.concluidos || 0;
+
+          // Charts
+          updateCharts(stats, appointments);
+
+          // Load other tabs data
+          populateBarberFilter(barbers);
+        } catch (error) {
+          console.error(error);
+          showToast("Erro ao carregar dashboard", true);
+        } finally {
+          hideLoading();
+        }
+      };
+
+      const updateCharts = (stats, appointments) => {
+        // Barber Chart
+        const barberData = stats.porBarbeiro || [];
+        const barberLabels = barberData.map((b) => b.barbeiro);
+        const barberCounts = barberData.map((b) => b.total);
+
+        if (barberChart) barberChart.destroy();
+        barberChart = new Chart(document.getElementById("barberChart"), {
+          type: "bar",
+          data: {
+            labels: barberLabels,
+            datasets: [
+              {
+                label: "Agendamentos",
+                data: barberCounts,
+                backgroundColor: "rgba(192, 154, 103, 0.8)",
+                borderColor: "rgba(192, 154, 103, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { color: "#a8a29e" },
+                grid: { color: "#292524" },
+              },
+              x: { ticks: { color: "#a8a29e" }, grid: { color: "#292524" } },
+            },
+          },
+        });
+
+        // Status Chart
+        const statusData = [
+          appointments.filter((a) => a.status === "Agendado").length,
+          stats.concluidos || 0,
+          stats.cancelados || 0,
+        ];
+
+        if (statusChart) statusChart.destroy();
+        statusChart = new Chart(document.getElementById("statusChart"), {
+          type: "doughnut",
+          data: {
+            labels: ["Agendado", "Concluído", "Cancelado"],
+            datasets: [
+              {
+                data: statusData,
+                backgroundColor: ["#3b82f6", "#10b981", "#ef4444"],
+                borderWidth: 2,
+                borderColor: "#1c1917",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: { color: "#a8a29e", padding: 15 },
+              },
+            },
+          },
+        });
+      };
+
+      // --- Appointments Management ---
+      const fetchAllAppointments = async (filters = {}) => {
+        const appointmentsList = document.getElementById("appointments-list");
+        appointmentsList.innerHTML =
+          '<div class="flex justify-center py-8"><div class="spinner"></div></div>';
+
+        try {
+          let url = `${API_BASE_URL}/api/agendamentos?`;
+          if (filters.status) url += `status=${filters.status}&`;
+          if (filters.barbeiro) url += `barbeiro=${filters.barbeiro}&`;
+          if (filters.dataInicio) url += `dataInicio=${filters.dataInicio}&`;
+
+          const response = await fetchWithAuth(url);
+          if (!response.ok) throw new Error("Falha ao buscar agendamentos.");
+          const appointments = await response.json();
+
+          appointmentsList.innerHTML = "";
+
+          if (appointments.length === 0) {
+            appointmentsList.innerHTML =
+              '<p class="text-center text-stone-500 py-8">Nenhum agendamento encontrado</p>';
+            return;
+          }
+
+          appointments.forEach((app) => {
+            const div = document.createElement("div");
+            let statusClass = "bg-stone-800 border-stone-700";
+            let statusBadge = "bg-blue-900/30 text-blue-400";
+
+            if (app.status === "Concluído") {
+              statusClass = "bg-green-900/10 border-green-800/30";
+              statusBadge = "bg-green-900/30 text-green-400";
+            }
+            if (app.status === "Cancelado") {
+              statusClass = "bg-red-900/10 border-red-800/30";
+              statusBadge = "bg-red-900/30 text-red-400";
+            }
+
+            div.className = `appointment-card p-4 rounded-lg border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${statusClass}`;
+            div.innerHTML = `
+                        <div class="flex-1">
+                            <p class="font-bold text-white mb-1">${
+                              app.nomeCliente
+                            }</p>
+                            <p class="text-sm text-stone-400">${
+                              app.nomeBarbeiro
+                            } - ${formatDateTime(app.dataHora)}</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="${statusBadge} text-xs font-medium px-3 py-1 rounded-full">${
+              app.status
+            }</span>
+                            ${
+                              app.status === "Agendado"
+                                ? `
+                                <button data-id="${app.id}" class="complete-btn text-xs bg-green-700 hover:bg-green-600 text-white py-1.5 px-3 rounded transition-all">✓ Concluir</button>
+                                <button data-id="${app.id}" class="cancel-btn text-xs bg-yellow-700 hover:bg-yellow-600 text-white py-1.5 px-3 rounded transition-all">✕ Cancelar</button>
+                            `
+                                : ""
+                            }
+                            <button data-id="${
+                              app.id
+                            }" class="delete-btn text-xs bg-red-800 hover:bg-red-700 text-white py-1.5 px-3 rounded transition-all">🗑 Excluir</button>
+                        </div>
+                    `;
+            appointmentsList.appendChild(div);
+          });
+
+          // Event delegation for buttons
+          appointmentsList.addEventListener("click", handleAppointmentAction);
+        } catch (error) {
+          console.error(error);
+          showToast("Erro ao carregar agendamentos", true);
+          appointmentsList.innerHTML =
+            '<p class="text-center text-red-500 py-8">Erro ao carregar agendamentos</p>';
+        }
+      };
+
+      const handleAppointmentAction = async (e) => {
+        const target = e.target;
+        const id = target.dataset.id;
+        if (!id) return;
+
+        let actionPromise, successMsg;
+
+        if (target.classList.contains("delete-btn")) {
+          if (!confirm("Excluir este agendamento permanentemente?")) return;
+          actionPromise = fetchWithAuth(
+            `${API_BASE_URL}/api/agendamentos/${id}`,
+            { method: "DELETE" }
+          );
+          successMsg = "Agendamento excluído";
+        } else if (target.classList.contains("complete-btn")) {
+          actionPromise = fetchWithAuth(
+            `${API_BASE_URL}/api/agendamentos/${id}/concluir`,
+            { method: "PUT" }
+          );
+          successMsg = "Agendamento concluído";
+        } else if (target.classList.contains("cancel-btn")) {
+          actionPromise = fetchWithAuth(
+            `${API_BASE_URL}/api/agendamentos/${id}/cancelar`,
+            { method: "PUT" }
+          );
+          successMsg = "Agendamento cancelado";
+        }
+
+        if (actionPromise) {
+          showLoading();
           try {
-            const response = await fetchWithAuth(
-              `${API_BASE_URL}/api/barbeiros`
-            );
-            if (!response.ok) throw new Error("Falha ao buscar barbeiros.");
-            const barbers = await response.json();
-            barbersList.innerHTML = "";
-            barbers.forEach((barber) => {
-              const div = document.createElement("div");
-              div.className =
-                "flex justify-between items-center bg-stone-700 p-2 rounded";
-              div.innerHTML = `<span>${barber.nome}</span><button data-id="${barber.id}" class="delete-barber-btn text-red-500 hover:text-red-400 font-bold">X</button>`;
-              barbersList.appendChild(div);
-            });
+            const response = await actionPromise;
+            if (!response.ok) throw new Error("Ação falhou");
+            showToast(successMsg);
+            await fetchAllAppointments();
+            await loadDashboard(); // Refresh stats
           } catch (error) {
             showToast(error.message, true);
+          } finally {
+            hideLoading();
           }
-        };
+        }
+      };
 
-        addBarberForm.addEventListener("submit", async (e) => {
+      // Filters
+      document.getElementById("apply-filters").addEventListener("click", () => {
+        const filters = {
+          status: document.getElementById("filter-status").value,
+          barbeiro: document.getElementById("filter-barber").value,
+          dataInicio: document.getElementById("filter-date-start").value,
+        };
+        fetchAllAppointments(filters);
+      });
+
+      document
+        .getElementById("refresh-appointments")
+        .addEventListener("click", () => fetchAllAppointments());
+
+      // --- Barbers Management ---
+      const fetchBarbersForAdmin = async () => {
+        const barbersList = document.getElementById("barbers-list");
+        barbersList.innerHTML =
+          '<div class="flex justify-center py-8"><div class="spinner"></div></div>';
+
+        try {
+          const response = await fetchWithAuth(`${API_BASE_URL}/api/barbeiros`);
+          if (!response.ok) throw new Error("Falha ao buscar barbeiros");
+          const barbers = await response.json();
+
+          barbersList.innerHTML = "";
+
+          if (barbers.length === 0) {
+            barbersList.innerHTML =
+              '<p class="text-center text-stone-500 py-8">Nenhum barbeiro cadastrado</p>';
+            return;
+          }
+
+          barbers.forEach((barber) => {
+            const div = document.createElement("div");
+            div.className =
+              "flex justify-between items-center bg-stone-800 p-4 rounded-lg border border-stone-700 hover:border-amber-700 transition-all";
+            div.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-amber-800 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                                ${barber.nome.charAt(0).toUpperCase()}
+                            </div>
+                            <span class="font-medium text-white">${
+                              barber.nome
+                            }</span>
+                        </div>
+                        <button data-id="${
+                          barber.id
+                        }" class="delete-barber-btn text-red-500 hover:text-red-400 font-bold px-3 py-1 rounded transition-all">✕ Remover</button>
+                    `;
+            barbersList.appendChild(div);
+          });
+        } catch (error) {
+          console.error(error);
+          showToast("Erro ao carregar barbeiros", true);
+        }
+      };
+
+      document
+        .getElementById("add-barber-form")
+        .addEventListener("submit", async (e) => {
           e.preventDefault();
-          const nome = newBarberNameInput.value;
+          const nome = document.getElementById("new-barber-name").value.trim();
           if (!nome) return;
+
+          showLoading();
           try {
             const response = await fetchWithAuth(
               `${API_BASE_URL}/api/barbeiros`,
@@ -308,151 +912,94 @@
                 body: JSON.stringify({ nome }),
               }
             );
-            if (!response.ok) throw new Error("Falha ao adicionar barbeiro.");
-            newBarberNameInput.value = "";
-            showToast("Barbeiro adicionado!");
+            if (!response.ok) throw new Error("Falha ao adicionar barbeiro");
+
+            document.getElementById("new-barber-name").value = "";
+            showToast("Barbeiro adicionado com sucesso");
             await fetchBarbersForAdmin();
+            await loadDashboard(); // Refresh stats
           } catch (error) {
             showToast(error.message, true);
+          } finally {
+            hideLoading();
           }
         });
 
-        barbersList.addEventListener("click", async (e) => {
+      document
+        .getElementById("barbers-list")
+        .addEventListener("click", async (e) => {
           if (e.target.classList.contains("delete-barber-btn")) {
             const id = e.target.dataset.id;
             if (confirm("Tem certeza que deseja remover este barbeiro?")) {
+              showLoading();
               try {
                 const response = await fetchWithAuth(
                   `${API_BASE_URL}/api/barbeiros/${id}`,
                   { method: "DELETE" }
                 );
-                if (!response.ok) throw new Error("Falha ao remover barbeiro.");
-                showToast("Barbeiro removido.");
+                if (!response.ok) throw new Error("Falha ao remover barbeiro");
+                showToast("Barbeiro removido");
                 await fetchBarbersForAdmin();
+                await loadDashboard();
               } catch (error) {
                 showToast(error.message, true);
+              } finally {
+                hideLoading();
               }
             }
           }
         });
 
-        // --- GERENCIAMENTO DE AGENDAMENTOS ---
-        const fetchAllAppointments = async () => {
-          adminAppointmentsList.innerHTML =
-            '<p class="text-center text-stone-500">Carregando...</p>';
-          try {
-            const response = await fetchWithAuth(
-              `${API_BASE_URL}/api/agendamentos`
-            );
-            if (!response.ok) throw new Error("Falha ao buscar agendamentos.");
-            const appointments = await response.json();
-            adminAppointmentsList.innerHTML = "";
-            if (appointments.length === 0) {
-              adminAppointmentsList.innerHTML =
-                '<p class="text-center text-stone-500">Nenhum agendamento encontrado.</p>';
-              return;
-            }
-            appointments.forEach((app) => {
-              const div = document.createElement("div");
-              let statusClass = "bg-stone-800 border-stone-700";
-              if (app.status === "Concluído")
-                statusClass = "bg-green-900/20 border-green-800/30";
-              if (app.status === "Cancelado")
-                statusClass = "bg-red-900/20 border-red-800/30 text-stone-500";
-
-              div.className = `p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 ${statusClass}`;
-
-              let statusText =
-                app.status === "Concluído"
-                  ? "text-green-400"
-                  : "text-stone-100";
-              if (app.status === "Cancelado")
-                statusText = "text-stone-500 line-through";
-
-              div.innerHTML = `
-                            <div>
-                                <p class="font-bold ${statusText}">${
-                app.nomeCliente
-              }</p>
-                                <p class="text-sm ${
-                                  app.status === "Cancelado"
-                                    ? "text-stone-600"
-                                    : "text-stone-400"
-                                }">${app.nomeBarbeiro} - ${formatDateTime(
-                app.dataHora
-              )}</p>
-                            </div>
-                            <div class="flex items-center gap-2 flex-shrink-0">
-                                ${
-                                  app.status === "Agendado"
-                                    ? `<button data-id="${app.id}" class="complete-btn text-xs bg-green-700 hover:bg-green-600 text-white py-1 px-3 rounded">Concluir</button>`
-                                    : ""
-                                }
-                                ${
-                                  app.status === "Agendado"
-                                    ? `<button data-id="${app.id}" class="cancel-btn text-xs bg-yellow-700 hover:bg-yellow-600 text-white py-1 px-3 rounded">Cancelar</button>`
-                                    : ""
-                                }
-                                <button data-id="${
-                                  app.id
-                                }" class="delete-btn text-xs bg-red-800 hover:bg-red-700 text-white py-1 px-3 rounded">Excluir</button>
-                            </div>`;
-              adminAppointmentsList.appendChild(div);
-            });
-          } catch (error) {
-            showToast(error.message, true);
-            adminAppointmentsList.innerHTML =
-              '<p class="text-center text-red-500">Erro ao carregar agendamentos.</p>';
-          }
-        };
-
-        adminAppointmentsList.addEventListener("click", async (e) => {
-          const id = e.target.dataset.id;
-          if (!id) return;
-
-          let actionPromise;
-          let successMsg = "";
-
-          if (e.target.classList.contains("delete-btn")) {
-            if (!confirm("Excluir este agendamento permanentemente?")) return;
-            actionPromise = fetchWithAuth(
-              `${API_BASE_URL}/api/agendamentos/${id}`,
-              { method: "DELETE" }
-            );
-            successMsg = "Agendamento excluído.";
-          } else if (e.target.classList.contains("complete-btn")) {
-            actionPromise = fetchWithAuth(
-              `${API_BASE_URL}/api/agendamentos/${id}/concluir`,
-              { method: "PUT" }
-            );
-            successMsg = "Agendamento concluído.";
-          } else if (e.target.classList.contains("cancel-btn")) {
-            actionPromise = fetchWithAuth(
-              `${API_BASE_URL}/api/agendamentos/${id}/cancelar`,
-              { method: "PUT" }
-            );
-            successMsg = "Agendamento cancelado.";
-          }
-
-          if (actionPromise) {
-            try {
-              const response = await actionPromise;
-              if (!response.ok) throw new Error("Ação falhou.");
-              showToast(successMsg);
-              await fetchAllAppointments();
-            } catch (error) {
-              showToast(error.message, true);
-            }
-          }
+      const populateBarberFilter = (barbers) => {
+        const filterSelect = document.getElementById("filter-barber");
+        filterSelect.innerHTML = '<option value="">Todos os Barbeiros</option>';
+        barbers.forEach((b) => {
+          const option = document.createElement("option");
+          option.value = b.nome;
+          option.textContent = b.nome;
+          filterSelect.appendChild(option);
         });
+      };
 
-        // --- INICIALIZAÇÃO DO PAINEL ---
-        if (getToken()) {
-          showAdminPanel();
-        } else {
-          showLoginPage();
+      // --- Export Data ---
+      window.exportData = async () => {
+        showLoading();
+        try {
+          const response = await fetchWithAuth(
+            `${API_BASE_URL}/api/agendamentos`
+          );
+          const appointments = await response.json();
+
+          let csv = "Cliente,Barbeiro,Data/Hora,Status\n";
+          appointments.forEach((app) => {
+            csv += `"${app.nomeCliente}","${
+              app.nomeBarbeiro
+            }","${formatDateTime(app.dataHora)}","${app.status}"\n`;
+          });
+
+          const blob = new Blob([csv], { type: "text/csv" });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `agendamentos-${
+            new Date().toISOString().split("T")[0]
+          }.csv`;
+          a.click();
+
+          showToast("Dados exportados com sucesso!");
+        } catch (error) {
+          showToast("Erro ao exportar dados", true);
+        } finally {
+          hideLoading();
         }
-      });
+      };
+
+      // --- Initialize ---
+      if (getToken()) {
+        showAdminPanel();
+      } else {
+        showLoginPage();
+      }
     </script>
   </body>
 </html>

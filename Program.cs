@@ -6,7 +6,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- CONFIGURAÇÃO DE AUTENTICAÇÃO JWT ---
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -16,20 +15,18 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false, // Em prod, pode validar quem gerou o token
-        ValidateAudience = false, // Em prod, pode validar para quem o token foi gerado
+        ValidateIssuer = false,
+        ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "MySecretKey123!@#"))
     };
 });
-// --- FIM DA CONFIGURAÇÃO DE AUTENTICAÇÃO ---
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BarbeariaContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Habilitar CORS para permitir que o frontend acesse a API
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -61,15 +58,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Adicionar middlewares de Roteamento, CORS, Autenticação e Autorização (A ORDEM É IMPORTANTE)
 app.UseRouting();
-
-app.UseCors("AllowAll"); // Habilita o CORS
-
-app.UseAuthentication(); // 1. Verifica se o usuário está autenticado
-app.UseAuthorization();  // 2. Verifica se o usuário autenticado tem permissão
-
+app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

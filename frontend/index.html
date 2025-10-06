@@ -1,274 +1,1001 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
     <title>Barbearia Imperial - Agendamentos</title>
-    
+
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#111827"/>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/111827/d4af37?text=B.I">
+    <meta name="theme-color" content="#111827" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="https://placehold.co/192x192/111827/d4af37?text=B.I"
+    />
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #0c0a09; }
-        h1, h2, h3 { font-family: 'Playfair Display', serif; }
-        .background-overlay { background: radial-gradient(circle, rgba(12,10,9,0.7) 0%, rgba(12,10,9,0.95) 70%, #0c0a09 100%); }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1c1917; }
-        ::-webkit-scrollbar-thumb { background: #b45309; border-radius: 10px; }
-        [type='date']::-webkit-calendar-picker-indicator { filter: invert(0.8) brightness(1.2); cursor: pointer; }
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .toast {
-            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
-            border-radius: 8px; padding: 16px; position: fixed; z-index: 100; left: 50%;
-            transform: translateX(-50%); bottom: 30px; opacity: 0;
-            transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #0c0a09;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Playfair Display", serif;
+      }
+      .background-overlay {
+        background: radial-gradient(
+          circle,
+          rgba(12, 10, 9, 0.7) 0%,
+          rgba(12, 10, 9, 0.95) 70%,
+          #0c0a09 100%
+        );
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1c1917;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #b45309;
+        border-radius: 10px;
+      }
+      [type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.8) brightness(1.2);
+        cursor: pointer;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
-        .toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .slide-in {
+        animation: slideIn 0.3s ease-out;
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .pulse-animation {
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .toast {
+        visibility: hidden;
+        min-width: 280px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 12px;
+        padding: 18px 24px;
+        position: fixed;
+        z-index: 100;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 30px;
+        opacity: 0;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
+      }
+      .toast.show {
+        visibility: visible;
+        opacity: 1;
+        bottom: 50px;
+      }
+      .toast.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+      .toast.error {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+
+      .time-slot-btn {
+        transition: all 0.2s ease;
+      }
+      .time-slot-btn:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(180, 83, 9, 0.4);
+      }
+
+      .barber-card {
+        transition: all 0.3s ease;
+      }
+      .barber-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(192, 154, 103, 0.2);
+      }
+
+      .loading-spinner {
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 3px solid #c09a67;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .step-indicator {
+        position: relative;
+      }
+      .step-indicator::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        width: 100%;
+        height: 2px;
+        background: #44403c;
+      }
+      .step-indicator.active::after {
+        background: linear-gradient(90deg, #c09a67 0%, #44403c 100%);
+      }
     </style>
-</head>
-<body class="text-stone-300">
+  </head>
+  <body class="text-stone-300">
     <div class="fixed inset-0 z-[-1]">
-        <img src="https://images.unsplash.com/photo-1621605815832-8b3c5825b437?q=80&w=1974&auto=format&fit=crop" 
-             alt="[Ferramentas de barbearia em uma bancada de madeira]" 
-             class="w-full h-full object-cover opacity-25">
-        <div class="absolute inset-0 background-overlay"></div>
+      <img
+        src="https://images.unsplash.com/photo-1621605815832-8b3c5825b437?q=80&w=1974&auto=format&fit=crop"
+        alt="Ferramentas de barbearia"
+        class="w-full h-full object-cover opacity-25"
+      />
+      <div class="absolute inset-0 background-overlay"></div>
     </div>
 
-    <div class="container mx-auto p-4 md:p-6 max-w-4xl">
-        <header class="text-center mb-8 md:mb-12 relative">
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold" style="color: #c09a67;">Barbearia Imperial</h1>
-            <p class="text-stone-400 mt-2 tracking-wider">AGENDAMENTOS</p>
-            <button id="install-btn" class="absolute top-0 right-0 p-2 text-stone-400 hover:text-amber-700 transition-colors" title="Instalar App">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-            </button>
-        </header>
-
-        <main class="bg-stone-900/50 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-stone-800 shadow-2xl">
-            <h2 class="text-2xl font-bold mb-6 border-b-2 border-amber-900/30 pb-3 text-stone-200">Faça seu Agendamento</h2>
-            <form id="appointment-form" class="space-y-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label for="barber-name" class="block text-sm font-medium text-stone-400">Barbeiro</label>
-                        <select id="barber-name" name="barber-name" required class="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2.5 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800">
-                            <option value="">Carregando barbeiros...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="client-name" class="block text-sm font-medium text-stone-400">Seu Nome</label>
-                        <input type="text" id="client-name" name="client-name" required placeholder="Nome completo" class="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2.5 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800 placeholder:text-stone-500">
-                    </div>
-                </div>
-                <div>
-                    <label for="appointment-date" class="block text-sm font-medium text-stone-400">Data</label>
-                    <input type="date" id="appointment-date" name="appointment-date" required class="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2.5 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800" style="color-scheme: dark;">
-                </div>
-                <div id="time-slots-container" class="hidden">
-                    <label class="block text-sm font-medium text-stone-400">Horários Disponíveis</label>
-                    <div id="time-slots-loader" class="text-center p-4 text-stone-400">Buscando horários...</div>
-                    <div id="time-slots" class="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2"></div>
-                </div>
-                <input type="hidden" id="appointment-time" name="appointment-time">
-                <div class="pt-2">
-                    <button type="submit" id="submit-btn" disabled class="w-full bg-amber-800 disabled:bg-stone-700 disabled:cursor-not-allowed hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Confirmar Agendamento
-                    </button>
-                </div>
-            </form>
-        </main>
-        <footer class="text-center mt-6">
-            <a href="./admin.html" class="text-sm text-stone-500 hover:text-stone-400 transition-colors">Acesso Admin</a>
-        </footer>
-    </div>
-
-    <!-- Modal e Toast (inalterados) -->
-    <div id="install-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-gray-800 w-full max-w-2xl rounded-lg border border-gray-700 shadow-2xl p-6 md:p-8 relative">
-            <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            <h3 class="text-2xl text-center font-bold text-amber-400 mb-6">Como Instalar o Aplicativo</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <h4 class="text-xl font-semibold mb-3 text-center">iPhone (iOS)</h4>
-                    <ol class="space-y-4 text-sm text-gray-300">
-                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">1</span><span>No Safari, toque no ícone de <strong class="text-amber-400">Compartilhar</strong>.</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" /></svg></li>
-                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">2</span><span>Role e selecione <strong class="text-amber-400">"Adicionar à Tela de Início"</strong>.</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></li>
-                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">3</span><span>Toque em <strong class="text-amber-400">"Adicionar"</strong>.</li>
-                    </ol>
-                </div>
-                <div>
-                    <h4 class="text-xl font-semibold mb-3 text-center">Android (Chrome)</h4>
-                     <ol class="space-y-4 text-sm text-gray-300">
-                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">1</span><span>No Chrome, toque nos <strong class="text-amber-400">três pontinhos</strong>.</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg></li>
-                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">2</span><span>Selecione a opção <strong class="text-amber-400">"Instalar aplicativo"</strong>.</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></li>
-                        <li class="flex items-center"><span class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3">3</span><span>Confirme tocando em <strong class="text-amber-400">"Instalar"</strong>.</li>
-                    </ol>
-                </div>
-            </div>
+    <div class="container mx-auto p-4 md:p-6 max-w-5xl">
+      <!-- Header -->
+      <header class="text-center mb-8 md:mb-12 relative fade-in">
+        <div class="flex items-center justify-center mb-2">
+          <svg
+            class="w-12 h-12 mr-3"
+            style="color: #c09a67"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+            ></path>
+          </svg>
+          <h1
+            class="text-4xl sm:text-5xl md:text-6xl font-bold"
+            style="color: #c09a67"
+          >
+            Barbearia Imperial
+          </h1>
         </div>
+        <p class="text-stone-400 mt-2 tracking-[0.3em] text-sm">
+          EXCELÊNCIA EM CORTES
+        </p>
+        <button
+          id="install-btn"
+          class="absolute top-0 right-0 p-2 text-stone-400 hover:text-amber-700 transition-colors"
+          title="Instalar App"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-7 w-7"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
+          </svg>
+        </button>
+      </header>
+
+      <!-- Progress Steps -->
+      <div class="mb-8 max-w-3xl mx-auto">
+        <div class="flex items-center justify-between">
+          <div
+            class="flex-1 text-center step-indicator active"
+            id="step-1-indicator"
+          >
+            <div
+              class="w-10 h-10 mx-auto mb-2 rounded-full bg-amber-800 flex items-center justify-center text-white font-bold"
+            >
+              1
+            </div>
+            <p class="text-xs text-stone-400">Barbeiro</p>
+          </div>
+          <div class="flex-1 text-center step-indicator" id="step-2-indicator">
+            <div
+              class="w-10 h-10 mx-auto mb-2 rounded-full bg-stone-700 flex items-center justify-center text-white font-bold"
+            >
+              2
+            </div>
+            <p class="text-xs text-stone-400">Data</p>
+          </div>
+          <div class="flex-1 text-center" id="step-3-indicator">
+            <div
+              class="w-10 h-10 mx-auto mb-2 rounded-full bg-stone-700 flex items-center justify-center text-white font-bold"
+            >
+              3
+            </div>
+            <p class="text-xs text-stone-400">Horário</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Form -->
+      <main
+        class="bg-stone-900/50 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-stone-800 shadow-2xl fade-in"
+      >
+        <form id="appointment-form" class="space-y-6">
+          <!-- Step 1: Escolher Barbeiro -->
+          <div id="step-1" class="space-y-4">
+            <h2
+              class="text-2xl font-bold mb-4 border-b-2 border-amber-900/30 pb-3 text-stone-200 flex items-center"
+            >
+              <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                ></path>
+              </svg>
+              Escolha seu Barbeiro
+            </h2>
+            <div
+              id="barbers-grid"
+              class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            >
+              <!-- Preenchido dinamicamente -->
+            </div>
+            <div id="barbers-loading" class="flex justify-center py-8">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+
+          <!-- Step 2: Nome do Cliente e Data -->
+          <div id="step-2" class="hidden space-y-4">
+            <h2
+              class="text-2xl font-bold mb-4 border-b-2 border-amber-900/30 pb-3 text-stone-200"
+            >
+              Informações do Agendamento
+            </h2>
+            <div>
+              <label
+                for="client-name"
+                class="block text-sm font-medium text-stone-400 mb-2"
+                >Seu Nome Completo</label
+              >
+              <input
+                type="text"
+                id="client-name"
+                name="client-name"
+                required
+                placeholder="Digite seu nome completo"
+                class="block w-full bg-stone-800 border border-stone-700 rounded-lg shadow-sm py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800 placeholder:text-stone-500"
+              />
+            </div>
+            <div>
+              <label
+                for="appointment-date"
+                class="block text-sm font-medium text-stone-400 mb-2"
+                >Escolha a Data</label
+              >
+              <input
+                type="date"
+                id="appointment-date"
+                name="appointment-date"
+                required
+                class="block w-full bg-stone-800 border border-stone-700 rounded-lg shadow-sm py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800"
+                style="color-scheme: dark"
+              />
+            </div>
+            <div class="flex gap-3">
+              <button
+                type="button"
+                id="back-to-step-1"
+                class="flex-1 bg-stone-700 hover:bg-stone-600 text-white font-bold py-3 px-4 rounded-lg transition-all"
+              >
+                ← Voltar
+              </button>
+              <button
+                type="button"
+                id="next-to-step-3"
+                disabled
+                class="flex-1 bg-amber-800 disabled:bg-stone-700 disabled:cursor-not-allowed hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg transition-all"
+              >
+                Continuar →
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Escolher Horário -->
+          <div id="step-3" class="hidden space-y-4">
+            <h2
+              class="text-2xl font-bold mb-4 border-b-2 border-amber-900/30 pb-3 text-stone-200"
+            >
+              Horários Disponíveis
+            </h2>
+            <div id="time-slots-container">
+              <div id="time-slots-loader" class="flex justify-center py-8">
+                <div class="loading-spinner"></div>
+              </div>
+              <div
+                id="time-slots"
+                class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3"
+              ></div>
+            </div>
+            <input
+              type="hidden"
+              id="appointment-time"
+              name="appointment-time"
+            />
+            <input type="hidden" id="selected-barber" name="selected-barber" />
+
+            <div class="flex gap-3">
+              <button
+                type="button"
+                id="back-to-step-2"
+                class="flex-1 bg-stone-700 hover:bg-stone-600 text-white font-bold py-3 px-4 rounded-lg transition-all"
+              >
+                ← Voltar
+              </button>
+              <button
+                type="submit"
+                id="submit-btn"
+                disabled
+                class="flex-1 bg-gradient-to-r from-amber-800 to-amber-600 disabled:from-stone-700 disabled:to-stone-700 disabled:cursor-not-allowed hover:from-amber-700 hover:to-amber-500 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-[1.02] shadow-lg"
+              >
+                ✓ Confirmar Agendamento
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Resumo do Agendamento -->
+        <div
+          id="booking-summary"
+          class="mt-6 p-4 bg-stone-800/50 border border-stone-700 rounded-lg hidden"
+        >
+          <h3 class="text-lg font-bold text-amber-600 mb-3">
+            📋 Resumo do Agendamento
+          </h3>
+          <div class="space-y-2 text-sm">
+            <p>
+              <span class="text-stone-400">Barbeiro:</span>
+              <span id="summary-barber" class="text-white font-medium"></span>
+            </p>
+            <p>
+              <span class="text-stone-400">Cliente:</span>
+              <span id="summary-client" class="text-white font-medium"></span>
+            </p>
+            <p>
+              <span class="text-stone-400">Data:</span>
+              <span id="summary-date" class="text-white font-medium"></span>
+            </p>
+            <p>
+              <span class="text-stone-400">Horário:</span>
+              <span id="summary-time" class="text-white font-medium"></span>
+            </p>
+          </div>
+        </div>
+      </main>
+
+      <!-- Meus Agendamentos -->
+      <section
+        class="mt-8 bg-stone-900/50 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-stone-800 shadow-2xl fade-in"
+      >
+        <h2 class="text-2xl font-bold mb-4 text-stone-200">
+          🗓️ Consultar Agendamento
+        </h2>
+        <div class="flex gap-3 mb-4">
+          <input
+            type="text"
+            id="search-name"
+            placeholder="Digite seu nome..."
+            class="flex-1 bg-stone-800 border border-stone-700 rounded-lg py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-800 placeholder:text-stone-500"
+          />
+          <button
+            id="search-btn"
+            class="bg-amber-800 hover:bg-amber-700 text-white font-bold py-2 px-6 rounded-lg transition-all"
+          >
+            Buscar
+          </button>
+        </div>
+        <div id="my-appointments" class="space-y-3">
+          <p class="text-center text-stone-500 py-4">
+            Digite seu nome para consultar seus agendamentos
+          </p>
+        </div>
+      </section>
+
+      <footer class="text-center mt-8">
+        <p class="text-stone-500 text-sm mb-2">
+          Horário de funcionamento: Seg-Sex 9h-19h | Sáb 9h-17h
+        </p>
+        <a
+          href="./admin.html"
+          class="text-sm text-stone-500 hover:text-stone-400 transition-colors"
+          >Acesso Admin</a
+        >
+      </footer>
     </div>
+
+    <!-- Modal de Instalação -->
+    <div
+      id="install-modal"
+      class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-gray-800 w-full max-w-2xl rounded-lg border border-gray-700 shadow-2xl p-6 md:p-8 relative slide-in"
+      >
+        <button
+          id="close-modal-btn"
+          class="absolute top-4 right-4 text-gray-500 hover:text-white"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <h3 class="text-2xl text-center font-bold text-amber-400 mb-6">
+          Como Instalar o Aplicativo
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h4 class="text-xl font-semibold mb-3 text-center">iPhone (iOS)</h4>
+            <ol class="space-y-4 text-sm text-gray-300">
+              <li class="flex items-center">
+                <span
+                  class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3 flex-shrink-0"
+                  >1</span
+                ><span
+                  >No Safari, toque no ícone de
+                  <strong class="text-amber-400">Compartilhar</strong></span
+                >
+              </li>
+              <li class="flex items-center">
+                <span
+                  class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3 flex-shrink-0"
+                  >2</span
+                ><span
+                  >Role e selecione
+                  <strong class="text-amber-400"
+                    >"Adicionar à Tela de Início"</strong
+                  ></span
+                >
+              </li>
+              <li class="flex items-center">
+                <span
+                  class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3 flex-shrink-0"
+                  >3</span
+                ><span
+                  >Toque em
+                  <strong class="text-amber-400">"Adicionar"</strong></span
+                >
+              </li>
+            </ol>
+          </div>
+          <div>
+            <h4 class="text-xl font-semibold mb-3 text-center">
+              Android (Chrome)
+            </h4>
+            <ol class="space-y-4 text-sm text-gray-300">
+              <li class="flex items-center">
+                <span
+                  class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3 flex-shrink-0"
+                  >1</span
+                ><span
+                  >No Chrome, toque nos
+                  <strong class="text-amber-400">três pontinhos</strong></span
+                >
+              </li>
+              <li class="flex items-center">
+                <span
+                  class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3 flex-shrink-0"
+                  >2</span
+                ><span
+                  >Selecione
+                  <strong class="text-amber-400"
+                    >"Instalar aplicativo"</strong
+                  ></span
+                >
+              </li>
+              <li class="flex items-center">
+                <span
+                  class="bg-amber-600 text-white rounded-full w-6 h-6 text-center leading-6 mr-3 flex-shrink-0"
+                  >3</span
+                ><span
+                  >Confirme tocando em
+                  <strong class="text-amber-400">"Instalar"</strong></span
+                >
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
     <div id="toast" class="toast"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const API_BASE_URL = 'https://api.victorbrandao.tech'; // <-- ATUALIZADO PARA TESTE LOCAL
-            
-            const form = document.getElementById('appointment-form');
-            const dateInput = document.getElementById('appointment-date');
-            const timeSlotsContainer = document.getElementById('time-slots-container');
-            const timeSlotsDiv = document.getElementById('time-slots');
-            const timeSlotsLoader = document.getElementById('time-slots-loader');
-            const hiddenTimeInput = document.getElementById('appointment-time');
-            const submitBtn = document.getElementById('submit-btn');
-            const barberSelect = document.getElementById('barber-name');
-            const toast = document.getElementById('toast');
+      document.addEventListener("DOMContentLoaded", () => {
+        const API_BASE_URL = "https://api.victorbrandao.tech";
 
-            let selectedTimeSlot = null;
-            
-            // --- Lógica do PWA (Inalterada) ---
-            const manifest = {"name":"Barbearia Imperial","short_name":"Imperial","start_url":".","display":"standalone","background_color":"#111827","theme_color":"#d4af37","icons":[{"src":"https://placehold.co/192x192/111827/d4af37?text=B.I","type":"image/png","sizes":"192x192"},{"src":"https://placehold.co/512x512/111827/d4af37?text=B.I","type":"image/png","sizes":"512x512"}]};
-            const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-            const manifestUrl = URL.createObjectURL(manifestBlob);
-            document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestUrl}">`);
-            if ('serviceWorker' in navigator) {
-                const swContent = `const CACHE_NAME = 'barbearia-cache-v1'; self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['/','https://cdn.tailwindcss.com']))) }); self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))) });`;
-                const swBlob = new Blob([swContent], {type: 'application/javascript'});
-                navigator.serviceWorker.register(URL.createObjectURL(swBlob));
+        // Elementos
+        const form = document.getElementById("appointment-form");
+        const step1 = document.getElementById("step-1");
+        const step2 = document.getElementById("step-2");
+        const step3 = document.getElementById("step-3");
+        const barbersGrid = document.getElementById("barbers-grid");
+        const barbersLoading = document.getElementById("barbers-loading");
+        const clientNameInput = document.getElementById("client-name");
+        const dateInput = document.getElementById("appointment-date");
+        const timeSlotsContainer = document.getElementById(
+          "time-slots-container"
+        );
+        const timeSlotsDiv = document.getElementById("time-slots");
+        const timeSlotsLoader = document.getElementById("time-slots-loader");
+        const hiddenTimeInput = document.getElementById("appointment-time");
+        const selectedBarberInput = document.getElementById("selected-barber");
+        const submitBtn = document.getElementById("submit-btn");
+        const toast = document.getElementById("toast");
+        const bookingSummary = document.getElementById("booking-summary");
+
+        let selectedBarber = null;
+        let selectedTimeSlot = null;
+        let currentStep = 1;
+
+        // --- PWA Setup ---
+        const manifest = {
+          name: "Barbearia Imperial",
+          short_name: "Imperial",
+          start_url: ".",
+          display: "standalone",
+          background_color: "#111827",
+          theme_color: "#c09a67",
+          icons: [
+            {
+              src: "https://placehold.co/192x192/111827/d4af37?text=B.I",
+              type: "image/png",
+              sizes: "192x192",
+            },
+            {
+              src: "https://placehold.co/512x512/111827/d4af37?text=B.I",
+              type: "image/png",
+              sizes: "512x512",
+            },
+          ],
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {
+          type: "application/json",
+        });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        document.head.insertAdjacentHTML(
+          "beforeend",
+          `<link rel="manifest" href="${manifestUrl}">`
+        );
+
+        if ("serviceWorker" in navigator) {
+          const swContent = `const CACHE_NAME = 'barbearia-cache-v2'; self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['/','https://cdn.tailwindcss.com']))) }); self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))) });`;
+          const swBlob = new Blob([swContent], {
+            type: "application/javascript",
+          });
+          navigator.serviceWorker.register(URL.createObjectURL(swBlob));
+        }
+
+        // --- Helper Functions ---
+        const showToast = (message, isError = false) => {
+          toast.textContent = message;
+          toast.className = `toast show ${isError ? "error" : "success"}`;
+          setTimeout(() => {
+            toast.className = "toast";
+          }, 4000);
+        };
+
+        const updateStepIndicators = (step) => {
+          const indicators = [
+            "step-1-indicator",
+            "step-2-indicator",
+            "step-3-indicator",
+          ];
+          indicators.forEach((id, index) => {
+            const el = document.getElementById(id);
+            const circle = el.querySelector("div");
+            if (index < step) {
+              circle.className =
+                "w-10 h-10 mx-auto mb-2 rounded-full bg-amber-800 flex items-center justify-center text-white font-bold";
+              el.className =
+                index < step - 1
+                  ? "flex-1 text-center step-indicator active"
+                  : "flex-1 text-center step-indicator";
+            } else {
+              circle.className =
+                "w-10 h-10 mx-auto mb-2 rounded-full bg-stone-700 flex items-center justify-center text-white font-bold";
+              el.className = "flex-1 text-center";
             }
+          });
+        };
 
-            // --- FUNÇÕES DA APLICAÇÃO ---
+        const goToStep = (step) => {
+          currentStep = step;
+          [step1, step2, step3].forEach((s) => s.classList.add("hidden"));
+          if (step === 1) step1.classList.remove("hidden");
+          if (step === 2) step2.classList.remove("hidden");
+          if (step === 3) step3.classList.remove("hidden");
+          updateStepIndicators(step);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        };
 
-            const showToast = (message, isError = false) => {
-                toast.textContent = message;
-                toast.className = `toast show ${isError ? 'bg-red-600' : 'bg-green-600'}`;
-                setTimeout(() => { toast.className = 'toast'; }, 3000);
-            };
+        const updateSummary = () => {
+          if (
+            selectedBarber &&
+            clientNameInput.value &&
+            dateInput.value &&
+            selectedTimeSlot
+          ) {
+            document.getElementById("summary-barber").textContent =
+              selectedBarber;
+            document.getElementById("summary-client").textContent =
+              clientNameInput.value;
+            document.getElementById("summary-date").textContent = new Date(
+              dateInput.value
+            ).toLocaleDateString("pt-BR");
+            document.getElementById("summary-time").textContent =
+              selectedTimeSlot;
+            bookingSummary.classList.remove("hidden");
+          } else {
+            bookingSummary.classList.add("hidden");
+          }
+        };
 
-            const fetchBarbers = async () => {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/barbeiros`);
-                    if (!response.ok) throw new Error('Erro ao buscar barbeiros.');
-                    const barbers = await response.json();
-                    
-                    barberSelect.innerHTML = '';
-                    if (barbers.length > 0) {
-                        barbers.forEach(barber => {
-                            const option = document.createElement('option');
-                            option.value = barber.nome;
-                            option.textContent = barber.nome;
-                            barberSelect.appendChild(option);
-                        });
-                    } else {
-                        barberSelect.innerHTML = '<option value="">Nenhum barbeiro disponível</option>';
-                    }
-                } catch (error) {
-                    console.error(error);
-                    barberSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-                }
-            };
-            
-            const fetchAvailableTimes = async () => {
-                const selectedDate = dateInput.value;
-                if (!selectedDate) return;
+        // --- Fetch Barbers ---
+        const fetchBarbers = async () => {
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/barbeiros`);
+            if (!response.ok) throw new Error("Erro ao buscar barbeiros.");
+            const barbers = await response.json();
 
-                timeSlotsContainer.style.display = 'block';
-                timeSlotsDiv.innerHTML = '';
-                timeSlotsLoader.style.display = 'block';
-                selectedTimeSlot = null;
-                submitBtn.disabled = true;
+            barbersLoading.style.display = "none";
+            barbersGrid.innerHTML = "";
 
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/horarios/disponiveis?data=${selectedDate}`);
-                    if (!response.ok) throw new Error('Erro ao buscar horários.');
-                    const times = await response.json();
+            if (barbers.length > 0) {
+              barbers.forEach((barber) => {
+                const card = document.createElement("div");
+                card.className =
+                  "barber-card bg-stone-800 border-2 border-stone-700 rounded-lg p-5 cursor-pointer hover:border-amber-700 transition-all";
+                card.innerHTML = `
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-amber-800 rounded-full flex items-center justify-center text-white font-bold text-xl mr-3">
+                                        ${barber.nome.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-bold">${
+                                          barber.nome
+                                        }</p>
+                                        <p class="text-stone-400 text-sm">Barbeiro Profissional</p>
+                                    </div>
+                                </div>
+                            `;
+                card.addEventListener("click", () => {
+                  selectedBarber = barber.nome;
+                  selectedBarberInput.value = barber.nome;
+                  document.querySelectorAll(".barber-card").forEach((c) => {
+                    c.classList.remove("border-amber-600", "bg-amber-900/20");
+                  });
+                  card.classList.add("border-amber-600", "bg-amber-900/20");
+                  setTimeout(() => goToStep(2), 300);
+                });
+                barbersGrid.appendChild(card);
+              });
+            } else {
+              barbersGrid.innerHTML =
+                '<p class="col-span-full text-center text-stone-400">Nenhum barbeiro disponível</p>';
+            }
+          } catch (error) {
+            console.error(error);
+            barbersLoading.style.display = "none";
+            barbersGrid.innerHTML =
+              '<p class="col-span-full text-center text-red-400">Erro ao carregar barbeiros</p>';
+          }
+        };
 
-                    if (times.length === 0) {
-                        timeSlotsDiv.innerHTML = '<p class="col-span-full text-center text-stone-400">Nenhum horário disponível para esta data.</p>';
-                    } else {
-                        times.forEach(time => {
-                            const timeBtn = document.createElement('button');
-                            timeBtn.type = 'button';
-                            timeBtn.textContent = time;
-                            timeBtn.className = 'p-2 border border-stone-600 rounded-md text-stone-300 hover:bg-amber-800 hover:border-amber-700 transition-colors';
-                            timeBtn.addEventListener('click', () => {
-                                document.querySelectorAll('#time-slots button').forEach(btn => {
-                                    btn.classList.remove('bg-amber-700', 'border-amber-600');
-                                });
-                                timeBtn.classList.add('bg-amber-700', 'border-amber-600');
-                                selectedTimeSlot = time;
-                                hiddenTimeInput.value = `${selectedDate}T${time}:00`;
-                                submitBtn.disabled = false;
-                            });
-                            timeSlotsDiv.appendChild(timeBtn);
-                        });
-                    }
-                } catch (error) {
-                    console.error(error);
-                    timeSlotsDiv.innerHTML = '<p class="col-span-full text-center text-red-400">Não foi possível buscar os horários.</p>';
-                } finally {
-                    timeSlotsLoader.style.display = 'none';
-                }
-            };
+        // --- Fetch Available Times ---
+        const fetchAvailableTimes = async () => {
+          const selectedDate = dateInput.value;
+          if (!selectedDate) return;
 
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Agendando...';
+          timeSlotsLoader.style.display = "flex";
+          timeSlotsDiv.innerHTML = "";
+          selectedTimeSlot = null;
+          submitBtn.disabled = true;
 
-                const newAppointment = {
-                    nomeBarbeiro: document.getElementById('barber-name').value,
-                    nomeCliente: document.getElementById('client-name').value,
-                    dataHora: new Date(hiddenTimeInput.value).toISOString()
-                };
+          try {
+            const response = await fetch(
+              `${API_BASE_URL}/api/horarios/disponiveis?data=${selectedDate}`
+            );
+            if (!response.ok) throw new Error("Erro ao buscar horários.");
+            const times = await response.json();
 
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/agendamentos`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(newAppointment),
-                    });
+            timeSlotsLoader.style.display = "none";
 
-                    if (!response.ok) throw new Error('Falha ao criar agendamento.');
-                    
-                    showToast('Agendamento confirmado com sucesso!');
-                    form.reset();
-                    timeSlotsContainer.style.display = 'none';
-                    selectedTimeSlot = null;
-                } catch (error) {
-                    console.error(error);
-                    showToast('Erro ao criar agendamento. Tente novamente.', true);
-                } finally {
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Confirmar Agendamento';
-                }
+            if (times.length === 0) {
+              timeSlotsDiv.innerHTML =
+                '<p class="col-span-full text-center text-stone-400 py-4">Nenhum horário disponível para esta data</p>';
+            } else {
+              times.forEach((time) => {
+                const timeBtn = document.createElement("button");
+                timeBtn.type = "button";
+                timeBtn.textContent = time;
+                timeBtn.className =
+                  "time-slot-btn p-3 border-2 border-stone-600 rounded-lg text-stone-300 font-medium hover:bg-amber-800 hover:border-amber-700 transition-all";
+                timeBtn.addEventListener("click", () => {
+                  document.querySelectorAll(".time-slot-btn").forEach((btn) => {
+                    btn.classList.remove("bg-amber-700", "border-amber-600");
+                  });
+                  timeBtn.classList.add("bg-amber-700", "border-amber-600");
+                  selectedTimeSlot = time;
+                  hiddenTimeInput.value = `${selectedDate}T${time}:00`;
+                  submitBtn.disabled = false;
+                  updateSummary();
+                });
+                timeSlotsDiv.appendChild(timeBtn);
+              });
+            }
+          } catch (error) {
+            console.error(error);
+            timeSlotsLoader.style.display = "none";
+            timeSlotsDiv.innerHTML =
+              '<p class="col-span-full text-center text-red-400">Não foi possível buscar os horários</p>';
+          }
+        };
+
+        // --- Navigation ---
+        document
+          .getElementById("back-to-step-1")
+          .addEventListener("click", () => goToStep(1));
+        document
+          .getElementById("back-to-step-2")
+          .addEventListener("click", () => goToStep(2));
+
+        document
+          .getElementById("next-to-step-3")
+          .addEventListener("click", () => {
+            if (clientNameInput.value && dateInput.value) {
+              goToStep(3);
+              fetchAvailableTimes();
+              updateSummary();
+            } else {
+              showToast(
+                "Por favor, preencha seu nome e escolha uma data",
+                true
+              );
+            }
+          });
+
+        // Enable/disable next button based on inputs
+        [clientNameInput, dateInput].forEach((input) => {
+          input.addEventListener("input", () => {
+            document.getElementById("next-to-step-3").disabled = !(
+              clientNameInput.value && dateInput.value
+            );
+          });
+        });
+
+        // --- Form Submission ---
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<span class="pulse-animation">Agendando...</span>';
+
+          const newAppointment = {
+            nomeBarbeiro: selectedBarber,
+            nomeCliente: clientNameInput.value,
+            dataHora: new Date(hiddenTimeInput.value).toISOString(),
+          };
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/agendamentos`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(newAppointment),
             });
 
-            dateInput.addEventListener('change', fetchAvailableTimes);
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(
+                errorData.message || "Falha ao criar agendamento."
+              );
+            }
 
-            // --- INICIALIZAÇÃO ---
-            fetchBarbers();
-            
-             // Lógica do modal de instalação
-            const installBtn = document.getElementById('install-btn');
-            const installModal = document.getElementById('install-modal');
-            const closeModalBtn = document.getElementById('close-modal-btn');
-            installBtn.addEventListener('click', () => installModal.classList.remove('hidden'));
-            closeModalBtn.addEventListener('click', () => installModal.classList.add('hidden'));
-            installModal.addEventListener('click', (e) => { if(e.target === installModal) installModal.classList.add('hidden'); });
+            showToast("✅ Agendamento confirmado com sucesso!");
+            form.reset();
+            goToStep(1);
+            selectedBarber = null;
+            selectedTimeSlot = null;
+            bookingSummary.classList.add("hidden");
 
+            // Auto search for new appointments
+            if (clientNameInput.value) {
+              document.getElementById("search-name").value =
+                clientNameInput.value;
+              searchAppointments();
+            }
+          } catch (error) {
+            console.error(error);
+            showToast(
+              error.message || "Erro ao criar agendamento. Tente novamente.",
+              true
+            );
+          } finally {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = "✓ Confirmar Agendamento";
+          }
         });
+
+        // --- Search Appointments ---
+        const searchAppointments = async () => {
+          const searchName = document
+            .getElementById("search-name")
+            .value.trim();
+          const myAppointments = document.getElementById("my-appointments");
+
+          if (!searchName) {
+            myAppointments.innerHTML =
+              '<p class="text-center text-stone-500 py-4">Digite seu nome para consultar seus agendamentos</p>';
+            return;
+          }
+
+          myAppointments.innerHTML =
+            '<div class="flex justify-center py-8"><div class="loading-spinner"></div></div>';
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/agendamentos`);
+            if (!response.ok) throw new Error("Erro ao buscar agendamentos.");
+            const appointments = await response.json();
+
+            const filtered = appointments.filter(
+              (app) =>
+                app.nomeCliente
+                  .toLowerCase()
+                  .includes(searchName.toLowerCase()) &&
+                app.status === "Agendado"
+            );
+
+            myAppointments.innerHTML = "";
+
+            if (filtered.length === 0) {
+              myAppointments.innerHTML =
+                '<p class="text-center text-stone-400 py-4">Nenhum agendamento encontrado para este nome</p>';
+              return;
+            }
+
+            filtered.forEach((app) => {
+              const div = document.createElement("div");
+              div.className =
+                "bg-stone-800 border border-stone-700 rounded-lg p-4 hover:border-amber-800 transition-all";
+              const date = new Date(app.dataHora);
+              div.innerHTML = `
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="font-bold text-white mb-1">${
+                                      app.nomeBarbeiro
+                                    }</p>
+                                    <p class="text-sm text-stone-400">
+                                        <span class="inline-block mr-3">📅 ${date.toLocaleDateString(
+                                          "pt-BR"
+                                        )}</span>
+                                        <span class="inline-block">⏰ ${date.toLocaleTimeString(
+                                          "pt-BR",
+                                          { hour: "2-digit", minute: "2-digit" }
+                                        )}</span>
+                                    </p>
+                                </div>
+                                <span class="bg-green-900/30 text-green-400 text-xs font-medium px-3 py-1 rounded-full">${
+                                  app.status
+                                }</span>
+                            </div>
+                        `;
+              myAppointments.appendChild(div);
+            });
+          } catch (error) {
+            console.error(error);
+            myAppointments.innerHTML =
+              '<p class="text-center text-red-400 py-4">Erro ao buscar agendamentos</p>';
+          }
+        };
+
+        document
+          .getElementById("search-btn")
+          .addEventListener("click", searchAppointments);
+        document
+          .getElementById("search-name")
+          .addEventListener("keypress", (e) => {
+            if (e.key === "Enter") searchAppointments();
+          });
+
+        // --- Set minimum date to today ---
+        const today = new Date().toISOString().split("T")[0];
+        dateInput.min = today;
+        dateInput.value = today;
+
+        // --- Modal Installation ---
+        const installBtn = document.getElementById("install-btn");
+        const installModal = document.getElementById("install-modal");
+        const closeModalBtn = document.getElementById("close-modal-btn");
+        installBtn.addEventListener("click", () =>
+          installModal.classList.remove("hidden")
+        );
+        closeModalBtn.addEventListener("click", () =>
+          installModal.classList.add("hidden")
+        );
+        installModal.addEventListener("click", (e) => {
+          if (e.target === installModal) installModal.classList.add("hidden");
+        });
+
+        // --- Init ---
+        fetchBarbers();
+      });
     </script>
-</body>
+  </body>
 </html>
