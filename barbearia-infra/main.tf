@@ -187,7 +187,7 @@ resource "aws_lb_target_group" "barbearia_tg" {
   target_type = "ip"
 
   health_check {
-    path                = "/api/barbeiros" # Endpoint público simples para o health check
+    path                = "/api/barbeiros"
     protocol            = "HTTP"
     matcher             = "200"
     interval            = 30
@@ -197,21 +197,7 @@ resource "aws_lb_target_group" "barbearia_tg" {
   }
 }
 
-resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.barbearia_alb.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = aws_acm_certificate_validation.cert.certificate_arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.barbearia_tg.arn
-  }
-}
-
-# --- Certificado SSL (ACM) e DNS ---
-# Solicita um certificado SSL para o nosso subdomínio.
+# --- Certificado SSL (ACM) ---
 resource "aws_acm_certificate" "cert" {
   domain_name       = var.api_domain_name
   validation_method = "DNS"
@@ -221,14 +207,25 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-# ATENÇÃO: Passo manual aqui. O output do `terraform apply` irá mostrar
-# os registos CNAME que precisam de ser criados na Hostinger para validar o certificado.
-# Este recurso diz ao Terraform para esperar até que essa validação seja concluída.
 resource "aws_acm_certificate_validation" "cert" {
-  certificate_arn         = aws_acm_certificate.cert.arn
-  # Terraform irá automaticamente esperar que o registo DNS de validação seja propagado.
+  certificate_arn = aws_acm_certificate.cert.arn
 }
 
+# Listener HTTPS do Load Balancer
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.barbearia_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.cert.arn
+
+  depends_on = [aws_acm_certificate_validation.cert]
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.barbearia_tg.arn
+  }
+}
 
 # --- Contentores (ECS) ---
 resource "aws_ecs_cluster" "barbearia_cluster" {
@@ -334,4 +331,9 @@ output "certificate_validation_cname_name" {
 output "certificate_validation_cname_value" {
   description = "O VALOR do registo CNAME que precisa de criar na Hostinger para validar o certificado"
   value       = tolist(aws_acm_certificate.cert.domain_validation_options)[0].resource_record_value
+}
+
+output "certificate_arn" {
+  description = "ARN do certificado ACM criado"
+  value       = aws_acm_certificate.cert.arn
 }
