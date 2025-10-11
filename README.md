@@ -39,9 +39,9 @@ docker-compose up -d
 
 ## 🌐 Produção
 
-**URL:** https://api.victorbrandao.tech
+**URL:** https://app.victorbrandao.tech
 
-**Painel Admin:** https://api.victorbrandao.tech/admin.html
+**Painel Admin:** https://app.victorbrandao.tech/admin.html
 
 - Usuário: `admin`
 - Senha: `password123`

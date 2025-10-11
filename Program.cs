@@ -45,10 +45,15 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+// Executar migrações apenas quando explicitamente habilitado
+var runMigrations = Environment.GetEnvironmentVariable("RUN_EF_MIGRATIONS");
+if (string.Equals(runMigrations, "true", StringComparison.OrdinalIgnoreCase))
 {
-    var db = scope.ServiceProvider.GetRequiredService<BarbeariaContext>();
-    db.Database.Migrate();
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<BarbeariaContext>();
+        db.Database.Migrate();
+    }
 }
 
 if (app.Environment.IsDevelopment())

@@ -136,7 +136,7 @@ Crie `barbearia-infra/terraform.tfvars`:
 
 ```hcl
 supabase_connection_string = "postgresql://postgres.xxxxx:[SENHA]@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
-api_domain_name            = "api.victorbrandao.tech"
+api_domain_name            = "app.victorbrandao.tech"
 ```
 
 ⚠️ **Não commite este arquivo!** (já está no .gitignore)
@@ -207,21 +207,21 @@ Procure por:
 
 ```bash
 # Listar barbeiros
-curl https://api.victorbrandao.tech/api/barbeiros
+curl https://app.victorbrandao.tech/api/barbeiros
 
 # Listar agendamentos
-curl https://api.victorbrandao.tech/api/agendamentos
+curl https://app.victorbrandao.tech/api/agendamentos
 
 # Health check
-curl https://api.victorbrandao.tech/api/barbeiros -I
+curl https://app.victorbrandao.tech/api/barbeiros -I
 ```
 
 ### 7.3 Testar Frontend
 
 Acesse:
 
-- **Cliente**: https://api.victorbrandao.tech/index.html
-- **Admin**: https://api.victorbrandao.tech/admin.html
+- **Cliente**: https://app.victorbrandao.tech/index.html
+- **Admin**: https://app.victorbrandao.tech/admin.html
 
 ---
 

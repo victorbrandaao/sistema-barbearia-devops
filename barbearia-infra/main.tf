@@ -3,19 +3,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# --- Variáveis para Senhas e Nomes ---
-variable "db_user" {
-  description = "Utilizador do banco de dados RDS"
-  type        = string
-  default     = "postgres"
-}
-
-variable "db_password" {
-  description = "Senha do banco de dados RDS que será passada via linha de comando"
-  type        = string
-  sensitive   = true
-}
-
 variable "supabase_connection_string" {
   description = "String de conexão do Supabase"
   type        = string
@@ -25,7 +12,7 @@ variable "supabase_connection_string" {
 variable "api_domain_name" {
   description = "O subdomínio completo para a API"
   type        = string
-  default     = "api.victorbrandao.tech"
+  default     = "app.victorbrandao.tech"
 }
 
 

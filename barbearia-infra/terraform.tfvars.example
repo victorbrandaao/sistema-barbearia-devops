@@ -7,4 +7,4 @@
 supabase_connection_string = "postgresql://postgres.xxxxxxxxxxxxx:SUA_SENHA_AQUI@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
 
 # Domínio da API (mantenha como está)
-api_domain_name = "api.victorbrandao.tech"
+api_domain_name = "app.victorbrandao.tech"

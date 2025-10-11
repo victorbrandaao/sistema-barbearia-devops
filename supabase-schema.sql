@@ -3,23 +3,19 @@
 -- Execute este script no Supabase SQL Editor
 -- ============================================
 
--- Criar tabela Barbeiros
+-- Criar tabela Barbeiros (alinhado ao EF: apenas Id e Nome)
 CREATE TABLE IF NOT EXISTS "Barbeiros" (
     "Id" SERIAL PRIMARY KEY,
-    "Nome" VARCHAR(100) NOT NULL,
-    "Especialidade" VARCHAR(200)
+    "Nome" VARCHAR(100) NOT NULL
 );
 
--- Criar tabela Agendamentos
+-- Criar tabela Agendamentos (alinhado ao EF atual)
 CREATE TABLE IF NOT EXISTS "Agendamentos" (
     "Id" SERIAL PRIMARY KEY,
-    "NomeCliente" VARCHAR(100) NOT NULL,
-    "Telefone" VARCHAR(20) NOT NULL,
     "NomeBarbeiro" VARCHAR(100) NOT NULL,
-    "Servico" VARCHAR(100) NOT NULL,
-    "DataHora" TIMESTAMP NOT NULL,
-    "Status" VARCHAR(50) NOT NULL DEFAULT 'Agendado',
-    "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    "NomeCliente" VARCHAR(100) NOT NULL,
+    "DataHora" TIMESTAMP WITH TIME ZONE NOT NULL,
+    "Status" VARCHAR(50) NOT NULL DEFAULT 'Agendado'
 );
 
 -- Criar índices para melhor performance
@@ -35,15 +31,13 @@ CREATE INDEX IF NOT EXISTS idx_agendamentos_barbeiro
 CREATE INDEX IF NOT EXISTS idx_agendamentos_cliente 
     ON "Agendamentos"("NomeCliente");
 
-CREATE INDEX IF NOT EXISTS idx_agendamentos_telefone 
-    ON "Agendamentos"("Telefone");
+-- (Campo Telefone removido para alinhar com o modelo)
 
--- Inserir barbeiros iniciais
-INSERT INTO "Barbeiros" ("Nome", "Especialidade") VALUES
-    ('João Silva', 'Cortes modernos e barbas'),
-    ('Pedro Santos', 'Especialista em degradê'),
-    ('Carlos Lima', 'Barbas e finalização')
-ON CONFLICT DO NOTHING;
+-- Inserir barbeiros iniciais (apenas Nome, alinhado ao EF)
+INSERT INTO "Barbeiros" ("Nome") VALUES
+    ('João Silva'),
+    ('Pedro Santos'),
+    ('Carlos Lima');
 
 -- Verificar se as tabelas foram criadas
 SELECT 

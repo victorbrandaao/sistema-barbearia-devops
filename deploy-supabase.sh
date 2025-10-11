@@ -30,14 +30,6 @@ echo ""
 echo -e "${BLUE}🏗️  Passo 2: Atualizando infraestrutura AWS...${NC}"
 cd barbearia-infra
 
-# Destruir RDS antigo (se existir)
-echo "Removendo RDS (se existir)..."
-terraform destroy -auto-approve \
-    -target=aws_db_instance.barbearia_db \
-    -target=aws_db_subnet_group.db_subnet_group \
-    -target=aws_security_group.db_sg \
-    2>/dev/null || true
-
 # Aplicar nova configuração
 echo "Aplicando configuração com Supabase..."
 terraform init -upgrade
@@ -95,7 +87,7 @@ echo -e "${BLUE}🧪 Testando API...${NC}"
 sleep 5  # Aguardar alguns segundos
 
 echo "Testando endpoint /api/barbeiros..."
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://api.victorbrandao.tech/api/barbeiros)
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://app.victorbrandao.tech/api/barbeiros)
 
 if [ "$HTTP_CODE" -eq 200 ]; then
     echo -e "${GREEN}✅ API respondendo corretamente (HTTP $HTTP_CODE)${NC}"
@@ -111,9 +103,9 @@ echo -e "${GREEN}🎉 DEPLOY CONCLUÍDO COM SUCESSO!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo "📍 Acessos:"
-echo "   API: https://api.victorbrandao.tech"
-echo "   Cliente: https://api.victorbrandao.tech/index.html"
-echo "   Admin: https://api.victorbrandao.tech/admin.html"
+echo "   API: https://app.victorbrandao.tech"
+echo "   Cliente: https://app.victorbrandao.tech/index.html"
+echo "   Admin: https://app.victorbrandao.tech/admin.html"
 echo ""
 echo "📊 Monitoramento:"
 echo "   Logs ECS: aws logs tail /ecs/barbearia-api --follow --region us-east-1"
