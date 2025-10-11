@@ -1,0 +1,10 @@
+# Exemplo de arquivo terraform.tfvars
+# Copie este arquivo para terraform.tfvars e preencha com seus valores
+
+# Connection string do Supabase
+# Obtenha em: Supabase Dashboard → Settings → Database → Connection String (Session mode)
+# Formato: postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+supabase_connection_string = "postgresql://postgres.xxxxxxxxxxxxx:SUA_SENHA_AQUI@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
+
+# Domínio da API (mantenha como está)
+api_domain_name = "api.victorbrandao.tech"

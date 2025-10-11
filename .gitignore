@@ -23,4 +23,8 @@
 # Ignora os ficheiros de estado do Terraform (contêm segredos!)
 *.tfstate
 *.tfstate.backup
+
+# Ignora variáveis do Terraform (contêm credenciais!)
+terraform.tfvars
+*.auto.tfvars
 ```
