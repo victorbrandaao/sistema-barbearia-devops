@@ -3,8 +3,21 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# --- Variáveis para Senhas e Nomes ---
+variable "db_user" {
+  description = "Utilizador do banco de dados RDS"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_password" {
+  description = "Senha do banco de dados RDS que será passada via linha de comando"
+  type        = string
+  sensitive   = true
+}
+
 variable "supabase_connection_string" {
-  description = "Connection string do Supabase PostgreSQL"
+  description = "String de conexão do Supabase"
   type        = string
   sensitive   = true
 }
@@ -121,6 +134,20 @@ resource "aws_ecr_repository" "barbearia_api_repo" {
   }
 }
 
+# --- Certificado SSL (ACM) ---
+resource "aws_acm_certificate" "cert" {
+  domain_name       = var.api_domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn = aws_acm_certificate.cert.arn
+}
+
 # --- Load Balancer (ALB) ---
 resource "aws_lb" "barbearia_alb" {
   name               = "barbearia-alb"
@@ -148,29 +175,12 @@ resource "aws_lb_target_group" "barbearia_tg" {
   }
 }
 
-# --- Certificado SSL (ACM) ---
-resource "aws_acm_certificate" "cert" {
-  domain_name       = var.api_domain_name
-  validation_method = "DNS"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_acm_certificate_validation" "cert" {
-  certificate_arn = aws_acm_certificate.cert.arn
-}
-
-# Listener HTTPS do Load Balancer
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.barbearia_alb.arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = aws_acm_certificate.cert.arn
-
-  depends_on = [aws_acm_certificate_validation.cert]
 
   default_action {
     type             = "forward"
@@ -269,9 +279,9 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 }
 
 # --- Saídas (Outputs) ---
-output "load_balancer_dns_name" {
-  description = "O nome DNS do Load Balancer para usar no seu registo CNAME"
-  value       = aws_lb.barbearia_alb.dns_name
+output "certificate_arn" {
+  description = "ARN do certificado ACM criado"
+  value       = aws_acm_certificate.cert.arn
 }
 
 output "certificate_validation_cname_name" {
@@ -284,7 +294,7 @@ output "certificate_validation_cname_value" {
   value       = tolist(aws_acm_certificate.cert.domain_validation_options)[0].resource_record_value
 }
 
-output "certificate_arn" {
-  description = "ARN do certificado ACM criado"
-  value       = aws_acm_certificate.cert.arn
+output "load_balancer_dns_name" {
+  description = "O nome DNS do Load Balancer para usar no seu registo CNAME"
+  value       = aws_lb.barbearia_alb.dns_name
 }
